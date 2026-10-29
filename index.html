@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Joo Sturi Market</title>
+<meta name="theme-color" content="#0d1730">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<style>
+/* Layout: satu kolom HP. Header → 3 tab (Stok Akun, Vanguard, Penjualan) → isi tab → cadangan data. Tema gelap tunggal (desain A). */
+:root{
+  --bg:#0d1730; --card:#16244a; --card2:#1c2d5a; --line:#24376a; --fg:#e8eefc; --muted:#9fb0d4;
+  --accent:#6fa8ff; --on-accent:#0d1730; --star:#f5c04a; --ok:#5ee0a0; --ok-soft:#173a32; --warn:#f5b454; --warn-soft:#3a2d15; --bad:#ff8a7a;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:560px;margin:0 auto;padding-block:20px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+h1{margin:0;font-size:22px;font-weight:700}
+.sub{margin:2px 0 0;font-size:13px;color:var(--muted)}
+h2{margin:4px 0 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{font:inherit;font-weight:700;font-size:14px;border:0;border-radius:10px;padding:11px 6px;background:transparent;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.view{display:grid;gap:14px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.stat .k{font-size:13px;color:var(--muted)}
+.stat .v{font-size:24px;font-weight:700;overflow-wrap:anywhere}
+.star{color:var(--star)} .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.hero{background:var(--accent);color:var(--on-accent);border-radius:16px;padding:16px;display:grid;gap:4px}
+.hero .k{font-size:13px;font-weight:600}
+.hero .v{font-size:32px;font-weight:800;line-height:1.1}
+.hero .d{font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{font:inherit;color:inherit;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;display:grid;gap:2px;min-height:44px}
+.tile[aria-pressed="true"]{background:var(--card2);border:2px solid var(--accent);padding:9px}
+.tile .n{font-size:20px;font-weight:700;line-height:1.1}
+.tile .u{font-size:10px;letter-spacing:.08em;color:var(--muted)}
+.tile .c{font-size:12px;display:flex;gap:6px;flex-wrap:wrap}
+.tile .s{font-size:14px;font-weight:700;color:var(--star)}
+.tile.none{border-style:dashed}
+.tile.none .n{color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+label{display:grid;gap:4px;font-size:12px;color:var(--muted)}
+input,select,textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11px 14px;min-height:44px;background:var(--accent);color:var(--on-accent);cursor:pointer}
+.btn.sm{min-height:38px;padding:7px 12px;font-size:14px}
+.btn.ok{background:var(--ok);color:var(--on-accent)}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.chip{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:999px;padding:7px 12px;cursor:pointer}
+.chip.danger{color:var(--bad);border-color:var(--bad)}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{font:inherit;font-weight:700;font-size:14px;border:0;padding:10px;background:var(--bg);color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card2);color:var(--accent)}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+.toast{font-size:13px;color:var(--ok);font-weight:600;min-height:1.2em;margin:0}
+.empty{color:var(--muted);text-align:center;padding:22px 8px;font-size:14px}
+.banner{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13.5px;font-weight:600}
+/* rak */
+.rackhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.rackhead h3{margin:0;font-size:19px}
+.stats2{font-size:13px;color:var(--muted)}
+.group{margin-top:12px}
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;font:inherit;font-weight:700;font-size:14px;padding:12px 14px;border-radius:10px;border:0;cursor:pointer;text-align:left}
+.ghead.ready{background:var(--ok-soft);color:var(--ok)}
+.ghead.emp{background:var(--warn-soft);color:var(--warn)}
+.ghead .gc{display:flex;gap:10px;align-items:center;font-weight:600}
+.chev{display:inline-block;font-size:1.3rem;line-height:1;transition:transform .2s}
+.ghead[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.ghead[aria-expanded="true"]{border-radius:10px 10px 0 0}
+.gbody{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;padding:2px 12px 8px}
+.acc{display:grid;gap:8px;padding:11px 0;border-bottom:1px solid var(--line)}
+.acc:last-child{border-bottom:0}
+.acc.picked{background:var(--card2);margin-inline:-6px;padding-inline:6px;border-radius:8px}
+.l1{display:flex;gap:10px;align-items:center;min-width:0;font-size:inherit;color:inherit}
+.em{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;overflow-wrap:anywhere;min-width:0}
+.acc.emp .em{color:var(--muted)}
+.pick{width:22px;height:22px;flex:none;accent-color:var(--accent);padding:0;margin:0}
+.l2{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px}
+.pill.emp{background:var(--warn-soft);color:var(--warn)}
+.acts{display:flex;gap:6px;align-items:center;margin-left:auto}
+.inbox{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--bg);border-radius:8px;padding:9px}
+.inbox select{width:auto;padding:7px 8px;font-size:14px}
+.sellbox{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;background:var(--bg);border-radius:8px;padding:9px}
+.quick{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:13.5px;font-weight:600;padding:10px 0 4px}
+.quick input{width:76px;padding:7px 8px}
+.addbox{background:var(--bg);border-radius:10px;padding:12px;display:grid;gap:12px;margin-top:10px}
+.bulkbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;background:var(--card);border-top:1px solid var(--line);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* vanguard */
+.bbc{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bbc .v{font-size:24px;font-weight:800;color:var(--ok)}
+/* penjualan */
+.day{display:grid;gap:8px}
+.day.today{border-color:var(--accent)}
+.day .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}
+.day .k{font-size:11.5px;color:var(--muted)}
+.day .v{font-weight:700}
+.live{font-size:11px;font-weight:700;color:var(--accent);background:var(--card2);padding:2px 8px;border-radius:999px}
+.trx{display:grid;gap:3px;padding:10px 0;border-bottom:1px solid var(--line)}
+.trx:last-child{border-bottom:0}
+.trx .top{display:flex;justify-content:space-between;gap:10px}
+.trx .what{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.trx .amt{font-weight:700;white-space:nowrap}
+.trx .meta{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.trx .meta span{overflow-wrap:anywhere;min-width:0}
+.del{font:inherit;font-size:12.5px;border:0;background:none;color:var(--muted);cursor:pointer;padding:0}
+.del.confirm{color:var(--bad);font-weight:700}
+.backup{display:grid;gap:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Joo Sturi Market</h1>
+    <p class="sub">Catatan stok akun cabang dan Vanguard</p>
+  </header>
+
+  <div class="banner" id="sampleBanner" hidden>
+    <span>Ini data contoh. Hapus dulu sebelum mulai mencatat data asli.</span>
+    <button class="chip" id="clearSample" type="button">Mulai dari kosong</button>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tStok" aria-selected="true">Stok Akun</button>
+    <button role="tab" id="tVg" aria-selected="false">Vanguard</button>
+    <button role="tab" id="tJual" aria-selected="false">Penjualan</button>
+  </nav>
+
+  <!-- ============ STOK AKUN ============ -->
+  <div class="view" id="vStok">
+    <div class="stats">
+      <div class="stat"><div class="k">Server siap jual</div><div class="v num" id="sServer">0</div></div>
+      <div class="stat"><div class="k">Email siap jual</div><div class="v num ok" id="sReady">0</div></div>
+      <div class="stat"><div class="k">Email kosong</div><div class="v num warn" id="sEmpty">0</div></div>
+      <div class="stat"><div class="k">Server terjual</div><div class="v num" id="sSold">0</div></div>
+    </div>
+    <div class="row">
+      <h2>Rak stok</h2>
+      <form id="newRack" class="row" style="gap:6px;flex-wrap:nowrap">
+        <input id="newN" type="text" inputmode="numeric" placeholder="mis. 25" aria-label="Jumlah server untuk rak baru" style="width:96px;padding:7px 9px;font-size:15px">
+        <button class="btn sm" type="submit">+ Rak</button>
+      </form>
+    </div>
+    <div class="tiles" id="racks"></div>
+    <section class="card" id="rackPanel"></section>
+  </div>
+
+  <!-- ============ VANGUARD ============ -->
+  <div class="view" id="vVg" hidden>
+    <div class="stats">
+      <div class="stat"><div class="k">Total server</div><div class="v num" id="vServer">0</div></div>
+      <div class="stat"><div class="k">Total Vanguard</div><div class="v num star" id="vTotal">★ 0</div></div>
+    </div>
+    <div class="hero">
+      <div class="k">Total diamond (hasil konversi)</div>
+      <div class="v num" id="vDm">0</div>
+      <div class="d" id="vDesc"></div>
+    </div>
+    <h2>Vanguard per rak <span style="text-transform:none;letter-spacing:0;font-weight:500">(ketuk rak untuk mengisi)</span></h2>
+    <div class="tiles" id="vgTiles"></div>
+    <div id="vgEdit"></div>
+    <form class="card" id="vgAll" style="display:grid;gap:10px">
+      <div style="font-weight:700;font-size:14px">Isi semua rak sekaligus</div>
+      <div class="row" style="flex-wrap:nowrap">
+        <input id="vgAllN" type="text" inputmode="numeric" placeholder="2000" aria-label="Jumlah Vanguard untuk semua rak">
+        <button class="btn" type="submit">Terapkan</button>
+      </div>
+    </form>
+    <div class="card" style="display:grid;gap:10px">
+      <div style="font-weight:700;font-size:14px">Kurs penukaran</div>
+      <div class="three">
+        <label>★ per paket<input id="rVpp" type="text" inputmode="numeric"></label>
+        <label>Diamond / paket<input id="rDpp" type="text" inputmode="numeric"></label>
+        <label>Diamond / BBC<input id="rDpb" type="text" inputmode="numeric"></label>
+      </div>
+    </div>
+    <div class="card bbc">
+      <div><div style="font-weight:700">Gift BBC</div><div class="note" id="vBbcFrom">Dari 0 diamond</div></div>
+      <div style="text-align:right"><div class="v num" id="vBbc">0</div><div class="note">BBC yang akan diterima</div></div>
+    </div>
+  </div>
+
+  <!-- ============ PENJUALAN ============ -->
+  <div class="view" id="vJual" hidden>
+    <div class="stats">
+      <div class="stat"><div class="k">Total penjualan</div><div class="v num ok" id="jIn">Rp 0</div></div>
+      <div class="stat"><div class="k">Uang diambil</div><div class="v num bad" id="jOut">Rp 0</div></div>
+    </div>
+    <div class="hero"><div class="k">Sisa saldo</div><div class="v num" id="jNet">Rp 0</div></div>
+    <h2>Rekap harian <span style="text-transform:none;letter-spacing:0;font-weight:500">(00.00–23.59)</span></h2>
+    <div id="days" style="display:grid;gap:10px"></div>
+    <form class="card" id="fOut" style="display:grid;gap:10px">
+      <div style="font-weight:700;font-size:14px">Catat ambil uang</div>
+      <div class="two">
+        <label>Jumlah (Rp)<input id="oAmt" type="text" inputmode="numeric" placeholder="50000" required></label>
+        <label>Tanggal<input id="oDate" type="date" required></label>
+      </div>
+      <label>Keterangan (opsional)<input id="oDesc" placeholder="mis. Ambil untuk modal" autocomplete="off"></label>
+      <button class="btn" type="submit">Simpan</button>
+      <p class="toast" id="oMsg" aria-live="polite"></p>
+    </form>
+    <section class="card">
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">Riwayat</div>
+      <div id="hist"></div>
+    </section>
+  </div>
+
+  <section class="card backup">
+    <div style="font-weight:700;font-size:14px">Cadangan data</div>
+    <p class="note">Data tersimpan di HP ini. Unduh cadangan secara rutin supaya aman kalau ganti HP atau data browser terhapus.</p>
+    <div class="row" style="justify-content:flex-start">
+      <button class="btn sm ghost" id="bkDown" type="button">Unduh cadangan</button>
+      <label class="btn sm ghost" style="display:inline-flex;align-items:center;color:var(--fg);font-size:14px">Pulihkan cadangan<input id="bkFile" type="file" accept="application/json,.json" hidden></label>
+    </div>
+    <div id="bkConfirm"></div>
+  </section>
+</div>
+
+<form class="bulkbar" id="bulkbar" hidden>
+  <span><strong class="num" id="bbCount">0</strong> email dipilih</span>
+  <button class="btn sm ok" type="submit">Tandai sudah terisi</button>
+  <button class="chip" type="button" id="bbClear">Batal</button>
+</form>
+
+<script>
+(function(){
+const KEY="catatancabang.v1";
+const DEF=[10,11,12,13,14,15,16,17,18,19,20,21];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const f=n=>Number(n||0).toLocaleString("id-ID");
+const rp=n=>(n<0?"−":"")+"Rp "+Math.abs(n).toLocaleString("id-ID");
+const num=v=>{const x=parseInt(String(v).replace(/\D/g,""),10);return isNaN(x)?0:x};
+const iso=x=>new Date(x.getTime()-x.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const today=()=>iso(new Date());
+const dago=k=>{const x=new Date();x.setDate(x.getDate()-k);return iso(x)};
+const ddmm=s=>new Date(s+"T00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short"});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+
+function dotVariants(email,limit){
+  const [lp,dom]=email.toLowerCase().split("@");
+  const base=lp.replace(/\./g,""),L=base.length,total=Math.pow(2,Math.max(0,L-1)),out=[];
+  for(let m=0;m<total&&out.length<limit;m++){
+    let s="";for(let i=0;i<L;i++){s+=base[i];if(i<L-1&&(m>>(L-2-i))&1)s+="."}
+    out.push(s+"@"+dom);
+  }
+  return {list:out,total};
+}
+function blank(){return {v:1,racks:DEF.slice(),accs:[],kas:[],prices:{},vg:{},rate:{vpp:500,dpp:565,dpb:5}}}
+function sample(){
+  const S=blank();S.isSample=true;
+  const em=dotVariants("akuncontoh01@gmail.com",20).list;
+  DEF.forEach((n,i)=>S.accs.push({id:uid(),email:em[i],rack:n,ready:true,sales:[],at:i}));
+  for(let i=12;i<18;i++)S.accs.push({id:uid(),email:em[i],rack:10,ready:false,sales:[],at:i});
+  S.accs.push({id:uid(),email:em[18],rack:15,ready:false,sales:[{date:dago(1),n:15,price:12000}],at:18});
+  S.accs.push({id:uid(),email:em[19],rack:12,ready:false,sales:[{date:dago(0),n:12,price:10000}],at:19});
+  S.kas.push({id:uid(),type:"jual",date:dago(1),price:12000,rack:15,email:em[18],at:1});
+  S.kas.push({id:uid(),type:"jual",date:dago(0),price:10000,rack:12,email:em[19],at:2});
+  S.kas.push({id:uid(),type:"ambil",date:dago(1),price:10000,desc:"Ambil untuk modal",at:3});
+  DEF.forEach(n=>S.vg[n]=2000);
+  S.prices={12:10000,15:12000};
+  return S;
+}
+function valid(o){return o&&Array.isArray(o.racks)&&Array.isArray(o.accs)&&Array.isArray(o.kas)}
+let S=null;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!valid(S))S=sample();
+S.prices=S.prices||{};S.vg=S.vg||{};S.rate=Object.assign({vpp:500,dpp:565,dpb:5},S.rate||{});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+save();
+
+/* ---------- tab ---------- */
+const TABS={stok:["tStok","vStok"],vg:["tVg","vVg"],jual:["tJual","vJual"]};
+function showTab(t){
+  Object.entries(TABS).forEach(([k,[b,v]])=>{$(b).setAttribute("aria-selected",k===t);$(v).hidden=k!==t});
+  try{localStorage.setItem(KEY+".tab",t)}catch(e){}
+  updBar();
+}
+Object.entries(TABS).forEach(([k,[b]])=>$(b).onclick=()=>showTab(k));
+
+/* ---------- data contoh ---------- */
+let clearPending=false;
+$("clearSample").onclick=()=>{
+  if(!clearPending){clearPending=true;$("clearSample").textContent="Ketuk lagi untuk menghapus semua contoh";$("clearSample").classList.add("danger");return}
+  S=blank();save();clearPending=false;openRack=null;vgSel=null;picked.clear();renderAll();
+};
+
+/* ================= STOK AKUN ================= */
+let openRack=null,selling=null,moreOpen=null,addOpen=false,addMode="clone",addReady=false,pendingDel=null,msg="";
+const drawer={ready:false,emp:false};
+const picked=new Set();
+const inRack=n=>S.accs.filter(a=>a.rack===n).sort((a,b)=>(a.at||0)-(b.at||0));
+const accById=id=>S.accs.find(a=>a.id===id);
+const readyIn=n=>S.accs.filter(a=>a.rack===n&&a.ready).length;
+function say(t){msg=t;const m=$("rMsg");if(m)m.textContent=t}
+function ensureRack(n){if(!S.racks.includes(n))S.racks.push(n)}
+function parseLines(txt){
+  const out=[];
+  txt.split(/\r?\n/).forEach(l=>{const m=l.match(/([^\s:]+@[^\s:]+)\s*:?\s*(\d+)?/);if(m)out.push({email:m[1].toLowerCase(),n:m[2]?+m[2]:null})});
+  return out;
+}
+$("newRack").addEventListener("submit",e=>{
+  e.preventDefault();const n=num($("newN").value);if(!n)return;
+  ensureRack(n);save();openRack=n;addOpen=true;$("newN").value="";renderAll();say(`Rak ${n} server siap. Tambahkan email ke rak ini.`);
+});
+$("bulkbar").addEventListener("submit",e=>{
+  e.preventDefault();let c=0;
+  picked.forEach(id=>{const a=accById(id);if(a&&!a.ready){a.ready=true;c++}});
+  picked.clear();save();renderAll();say(`${c} email ditandai sudah terisi ${openRack} server.`);
+});
+$("bbClear").onclick=()=>{picked.clear();renderStok()};
+function updBar(){
+  [...picked].forEach(id=>{const a=accById(id);if(!a||a.ready||a.rack!==openRack)picked.delete(id)});
+  $("bulkbar").hidden=!picked.size||$("vStok").hidden;$("bbCount").textContent=picked.size;
+}
+
+function renderStok(){
+  const ready=S.accs.filter(a=>a.ready),emp=S.accs.filter(a=>!a.ready);
+  $("sServer").textContent=f(ready.reduce((s,a)=>s+a.rack,0));
+  $("sReady").textContent=f(ready.length);$("sEmpty").textContent=f(emp.length);
+  $("sSold").textContent=f(S.accs.reduce((s,a)=>s+(a.sales||[]).reduce((t,x)=>t+x.n,0),0));
+  const racks=[...S.racks].sort((a,b)=>a-b);
+  if(openRack===null||!racks.includes(openRack))openRack=racks.find(n=>inRack(n).length)??racks[0]??null;
+  $("racks").innerHTML=racks.map(n=>{
+    const l=inRack(n),r=l.filter(a=>a.ready).length,e=l.length-r;
+    return `<button class="tile ${l.length?"":"none"}" data-r="${n}" aria-pressed="${openRack===n}">
+      <span class="n">${n}</span><span class="u">SERVER</span>
+      <span class="c">${l.length?`${r?`<span class="ok">${r} siap</span>`:""}${e?`<span class="warn">${e} kosong</span>`:""}`:`<span style="color:var(--muted)">belum ada</span>`}</span>
+    </button>`}).join("");
+  document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
+    openRack=+b.dataset.r;selling=moreOpen=null;addOpen=false;picked.clear();pendingDel=null;msg="";renderStok();
+    $("rackPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  if(openRack===null){$("rackPanel").innerHTML=`<div class="empty">Belum ada rak. Buat rak baru di atas.</div>`;updBar();return}
+  const n=openRack,l=inRack(n),R=l.filter(a=>a.ready),E=l.filter(a=>!a.ready);
+  const row=a=>{
+    const sold=(a.sales||[]).length;
+    return `<div class="acc ${a.ready?"":"emp"} ${picked.has(a.id)?"picked":""}">
+      <label class="l1" ${a.ready?"":'style="cursor:pointer"'}>
+        ${a.ready?"":`<input type="checkbox" class="pick" data-pick="${a.id}" ${picked.has(a.id)?"checked":""} aria-label="Pilih email">`}
+        <span class="em">${esc(a.email)}</span>
+      </label>
+      <div class="l2">
+        <div style="display:flex;gap:8px;align-items:center;font-size:12.5px">${a.ready?`<strong class="num">${n} server</strong>`:`<span class="pill emp">kosong</span>`}${sold?`<span style="color:var(--muted)">terjual ${sold}×</span>`:""}</div>
+        <div class="acts">
+          ${a.ready?`<button class="btn sm" data-sell="${a.id}" aria-expanded="${selling===a.id}">Jual</button>`:`<button class="btn sm ghost" data-fill="${a.id}">Isi</button>`}
+          <button class="chip" data-copy="${a.id}">Salin</button>
+          <button class="chip" data-more="${a.id}" aria-expanded="${moreOpen===a.id}" aria-label="Lainnya" style="min-width:40px">⋯</button>
+        </div>
+      </div>
+      ${moreOpen===a.id?`<div class="inbox">
+        <span class="note">Pindah ke</span>
+        <select data-move="${a.id}" aria-label="Pindah ke rak"><option value="">pilih rak</option>${[...S.racks].sort((x,y)=>x-y).filter(x=>x!==n).map(x=>`<option value="${x}">${x} server</option>`).join("")}</select>
+        ${a.ready?`<button class="chip" data-unfill="${a.id}">Tandai kosong</button>`:""}
+        <button class="chip ${pendingDel==="a"+a.id?"danger":""}" data-adel="${a.id}">${pendingDel==="a"+a.id?"Yakin hapus email ini?":"Hapus email"}</button>
+        <span class="note" style="flex-basis:100%">${sold?`Riwayat jual: ${a.sales.map(x=>`${ddmm(x.date)} ${rp(x.price)}`).join(" · ")}`:"Belum pernah terjual."}</span>
+      </div>`:""}
+      ${selling===a.id?`<form class="sellbox" data-sellf="${a.id}">
+        <label>Harga jual ${n} server (Rp)<input id="sellPrice" type="text" inputmode="numeric" required placeholder="12000" value="${S.prices[n]??""}"></label>
+        <button class="btn sm ok" type="submit">Jual</button>
+      </form>`:""}
+    </div>`;
+  };
+  const addBox=addOpen?`<div class="addbox">
+      <div class="seg"><button type="button" id="amClone" aria-pressed="${addMode==="clone"}">Clone email</button><button type="button" id="amPaste" aria-pressed="${addMode==="paste"}">Tempel daftar</button></div>
+      ${addMode==="clone"?`<form id="fClone" style="display:grid;gap:12px">
+        <label>Email dasar<input id="cBase" type="email" placeholder="abcd1234@gmail.com" required autocomplete="off"></label>
+        <label>Jumlah clone<input id="cCount" type="text" inputmode="numeric" value="10" required></label>
+        <p class="note" id="cInfo">Variasi titik dibuat otomatis (abcd.1234, ab.cd1234, …). Email yang sudah ada dilewati.</p>
+        <div><div class="note" style="margin-bottom:4px">Status awal</div><div class="seg">
+          <button type="button" id="arEmp" aria-pressed="${!addReady}">Kosong</button>
+          <button type="button" id="arReady" aria-pressed="${addReady}">Sudah terisi</button></div></div>
+        <button class="btn" type="submit">Masukkan ke rak ${n} server</button>
+      </form>`:`<form id="fPaste" style="display:grid;gap:12px">
+        <textarea id="pText" placeholder="abcd1234@gmail.com : ${n}s&#10;abcd.1234@gmail.com :"></textarea>
+        <p class="note">Satu email per baris. Ada angka = sudah terisi (masuk ke rak sesuai angkanya). Tanpa angka = kosong di rak ${n} server.</p>
+        <button class="btn" type="submit">Masukkan</button>
+      </form>`}
+    </div>`:"";
+  $("rackPanel").innerHTML=`
+    <div class="rackhead">
+      <div><h3>Stok ${n} Server</h3>
+        <div class="stats2"><span class="num">${l.length}</span> email · <span class="ok"><span class="num">${R.length}</span> siap jual</span> · <span class="warn"><span class="num">${E.length}</span> kosong</span></div></div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn sm ${addOpen?"ghost":""}" id="addToggle">${addOpen?"Tutup":"+ Tambah email"}</button>
+        ${l.length?`<button class="chip" id="copyRack">Salin daftar</button>`:""}
+      </div>
+    </div>
+    <p class="toast" id="rMsg" aria-live="polite">${esc(msg)}</p>
+    ${addBox}
+    ${!l.length?`<div class="empty">Rak ${n} server belum ada email. Tekan "+ Tambah email" untuk clone atau tempel email ke rak ini.
+      ${!DEF.includes(n)?`<div style="margin-top:10px"><button class="chip ${pendingDel==="r"+n?"danger":""}" id="rmRack">${pendingDel==="r"+n?"Yakin hapus rak ini?":"Hapus rak ini"}</button></div>`:""}</div>`:""}
+    ${R.length?`<div class="group"><button type="button" class="ghead ready" data-drawer="ready" aria-expanded="${drawer.ready}"><span>Siap jual</span><span class="gc"><span class="num">${R.length} email · ${f(R.length*n)} server</span><span class="chev">›</span></span></button>
+      ${drawer.ready?`<div class="gbody">${R.map(row).join("")}</div>`:""}</div>`:""}
+    ${E.length?`<div class="group"><button type="button" class="ghead emp" data-drawer="emp" aria-expanded="${drawer.emp}"><span>Kosong · belum ada akun cabang</span><span class="gc"><span class="num">${E.length} email</span><span class="chev">›</span></span></button>
+      ${drawer.emp?`<div class="gbody">
+        <form class="quick" id="quick"><span>Tandai</span><input id="qCount" type="text" inputmode="numeric" value="${E.length}" aria-label="Jumlah email"><span>email teratas sudah terisi</span><button class="btn sm ok" type="submit">Tandai</button></form>
+        <p class="note" style="margin:0 0 4px">Atau centang email tertentu.</p>
+        ${E.map(row).join("")}</div>`:""}</div>`:""}
+  `;
+  bindRack(n,E);updBar();
+}
+function bindRack(n,E){
+  const on=(id,ev,fn)=>{const el=$(id);if(el)el.addEventListener(ev,fn)};
+  on("addToggle","click",()=>{addOpen=!addOpen;renderStok()});
+  on("amClone","click",()=>{addMode="clone";renderStok()});
+  on("amPaste","click",()=>{addMode="paste";renderStok()});
+  on("arEmp","click",()=>{addReady=false;$("arEmp").setAttribute("aria-pressed",true);$("arReady").setAttribute("aria-pressed",false)});
+  on("arReady","click",()=>{addReady=true;$("arEmp").setAttribute("aria-pressed",false);$("arReady").setAttribute("aria-pressed",true)});
+  on("cBase","input",()=>{
+    const v=$("cBase").value.trim();if(!/^[^@\s]+@[^@\s]+$/.test(v))return;
+    const L=v.split("@")[0].replace(/\./g,"").length;
+    $("cInfo").textContent=`Email ini bisa dibuat sampai ${f(Math.pow(2,Math.max(0,L-1)))} variasi. Email yang sudah ada dilewati.`;
+  });
+  on("fClone","submit",e=>{
+    e.preventDefault();
+    const want=Math.max(1,Math.min(5000,num($("cCount").value)||1));
+    const have=new Set(S.accs.map(a=>a.email));
+    const {list,total}=dotVariants($("cBase").value.trim(),want+have.size);
+    const now=Date.now();
+    const fresh=list.filter(x=>!have.has(x)).slice(0,want);
+    fresh.forEach((email,i)=>S.accs.push({id:uid(),email,rack:n,ready:addReady,sales:[],at:now+i}));
+    addOpen=false;save();renderAll();
+    say(`${fresh.length} email masuk ke rak ${n} server sebagai ${addReady?"siap jual":"kosong"}.`+(fresh.length<want?` Variasi habis (maks ${f(total)}).`:""));
+  });
+  on("fPaste","submit",e=>{
+    e.preventDefault();
+    const l=parseLines($("pText").value);if(!l.length){say("Tidak ada email yang terbaca. Pastikan tiap baris berisi alamat email.");return}
+    const have=new Set(S.accs.map(a=>a.email));let add=0,skip=0;const other=new Set(),now=Date.now();
+    l.forEach((x,i)=>{
+      if(have.has(x.email)){skip++;return}have.add(x.email);
+      const r=x.n||n;ensureRack(r);if(r!==n)other.add(r);
+      S.accs.push({id:uid(),email:x.email,rack:r,ready:!!x.n,sales:[],at:now+i});add++;
+    });
+    addOpen=false;save();renderAll();
+    say(`${add} email dimasukkan`+(other.size?` (sebagian ke rak ${[...other].join(", ")})`:"")+(skip?`, ${skip} dilewati karena sudah ada.`:"."));
+  });
+  on("copyRack","click",async()=>{
+    const txt=inRack(n).sort((a,b)=>b.ready-a.ready).map(a=>`${a.email} : ${a.ready?n+" server":""}`).join("\n");
+    try{await navigator.clipboard.writeText(txt);say("Daftar rak disalin.")}catch(e){say("Gagal menyalin di perangkat ini.")}
+  });
+  on("rmRack","click",()=>{if(pendingDel==="r"+n){S.racks=S.racks.filter(x=>x!==n);delete S.vg[n];openRack=null;pendingDel=null;save();renderAll()}else{pendingDel="r"+n;renderStok()}});
+  on("quick","submit",e=>{
+    e.preventDefault();const k=Math.max(1,num($("qCount").value)||1);
+    E.slice(0,k).forEach(a=>a.ready=true);picked.clear();save();renderAll();say(`${Math.min(k,E.length)} email ditandai sudah terisi ${n} server.`);
+  });
+  const all=(sel,fn)=>document.querySelectorAll("#rackPanel "+sel).forEach(fn);
+  all("[data-drawer]",b=>b.onclick=()=>{const k=b.dataset.drawer;drawer[k]=!drawer[k];if(!drawer.emp)picked.clear();selling=moreOpen=null;renderStok()});
+  all("[data-pick]",c=>c.onchange=()=>{const id=c.dataset.pick;c.checked?picked.add(id):picked.delete(id);c.closest(".acc").classList.toggle("picked",c.checked);updBar()});
+  all("[data-fill]",b=>b.onclick=()=>{const a=accById(b.dataset.fill);a.ready=true;picked.delete(a.id);save();renderAll();say(`${a.email} siap jual (${n} server).`)});
+  all("[data-unfill]",b=>b.onclick=()=>{const a=accById(b.dataset.unfill);a.ready=false;moreOpen=null;save();renderAll()});
+  all("[data-copy]",b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(accById(b.dataset.copy).email);b.textContent="Tersalin"}catch(e){b.textContent="Gagal"}});
+  all("[data-more]",b=>b.onclick=()=>{const id=b.dataset.more;moreOpen=moreOpen===id?null:id;selling=null;pendingDel=null;renderStok()});
+  all("[data-move]",s=>s.onchange=()=>{const a=accById(s.dataset.move),r=+s.value;if(!r)return;a.rack=r;moreOpen=null;save();renderAll();say(`${a.email} dipindah ke rak ${r} server.`)});
+  all("[data-adel]",b=>b.onclick=()=>{const id=b.dataset.adel;if(pendingDel==="a"+id){S.accs=S.accs.filter(a=>a.id!==id);pendingDel=null;moreOpen=null;save();renderAll()}else{pendingDel="a"+id;renderStok()}});
+  all("[data-sell]",b=>b.onclick=()=>{const id=b.dataset.sell;selling=selling===id?null:id;moreOpen=null;renderStok();const p=$("sellPrice");if(p)p.focus()});
+  all("[data-sellf]",fm=>fm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const a=accById(fm.dataset.sellf),price=num($("sellPrice").value),td=today();
+    a.ready=false;a.sales=[...(a.sales||[]),{date:td,n,price}];
+    S.kas.push({id:uid(),type:"jual",date:td,price,rack:n,email:a.email,at:Date.now()});
+    S.prices[n]=price;selling=null;save();renderAll();
+    say(`${n} server terjual ${rp(price)}. Email tetap di rak ${n} sebagai kosong; tercatat di tab Penjualan.`);
+  }));
+}
+
+/* ================= VANGUARD ================= */
+let vgSel=null;
+function vgCalc(){
+  const racks=[...S.racks];
+  const tv=racks.reduce((a,n)=>a+(S.vg[n]||0),0);
+  const ts=racks.reduce((a,n)=>a+n*readyIn(n),0);
+  const r=S.rate,vpp=Math.max(1,r.vpp||0),packs=Math.floor(tv/vpp),dm=packs*(r.dpp||0);
+  return {tv,ts,packs,dm,sisa:tv-packs*vpp,bbc:Math.floor(dm/Math.max(1,r.dpb||0))};
+}
+function renderVgNumbers(){
+  const c=vgCalc();
+  $("vServer").textContent=f(c.ts);$("vTotal").textContent="★ "+f(c.tv);
+  $("vDm").textContent=f(c.dm);
+  $("vDesc").textContent=`★ ${f(c.tv)} ditukar ${f(S.rate.vpp)} ★ = ${f(S.rate.dpp)} diamond per paket (${f(c.packs)} paket). Sisa ★ ${f(c.sisa)} belum bisa ditukar.`;
+  $("vBbc").textContent=f(c.bbc);$("vBbcFrom").textContent=`Dari ${f(c.dm)} diamond`;
+  const racks=[...S.racks].sort((a,b)=>a-b);
+  $("vgTiles").innerHTML=racks.map(n=>`<button class="tile" data-vg="${n}" aria-pressed="${vgSel===n}">
+    <span class="n">${n}</span><span class="u">SERVER · ${readyIn(n)} AKUN</span>
+    <span class="s num">★ ${f(S.vg[n]||0)}</span></button>`).join("");
+  document.querySelectorAll("[data-vg]").forEach(b=>b.onclick=()=>{const n=+b.dataset.vg;vgSel=vgSel===n?null:n;renderVgNumbers();renderVgEdit();if(vgSel)$("vgIn").focus()});
+}
+function renderVgEdit(){
+  const box=$("vgEdit");
+  if(vgSel===null||!S.racks.includes(vgSel)){box.innerHTML="";vgSel=null;return}
+  const n=vgSel;
+  box.innerHTML=`<form class="card" id="vgForm" style="border-color:var(--accent);display:grid;gap:10px">
+    <div class="row"><strong>Isi Vanguard rak ${n} server</strong><span class="note">${readyIn(n)} akun siap jual</span></div>
+    <div class="row" style="flex-wrap:nowrap">
+      <button type="button" class="btn ghost" id="vgMinus" aria-label="Kurangi 100" style="min-width:52px">−</button>
+      <input id="vgIn" type="text" inputmode="numeric" value="${S.vg[n]||0}" aria-label="Jumlah Vanguard rak ${n}" style="text-align:center;font-size:20px;font-weight:700">
+      <button type="button" class="btn ghost" id="vgPlus" aria-label="Tambah 100" style="min-width:52px">+</button>
+    </div>
+    <button class="btn" type="submit">Selesai</button>
+  </form>`;
+  const set=v=>{S.vg[n]=Math.max(0,v);save();renderVgNumbers()};
+  $("vgIn").addEventListener("input",e=>set(num(e.target.value)));
+  $("vgMinus").onclick=()=>{set((S.vg[n]||0)-100);$("vgIn").value=S.vg[n]};
+  $("vgPlus").onclick=()=>{set((S.vg[n]||0)+100);$("vgIn").value=S.vg[n]};
+  $("vgForm").addEventListener("submit",e=>{e.preventDefault();vgSel=null;renderVgNumbers();renderVgEdit()});
+}
+$("vgAll").addEventListener("submit",e=>{
+  e.preventDefault();const v=num($("vgAllN").value);
+  S.racks.forEach(n=>S.vg[n]=v);save();$("vgAllN").value="";renderVgNumbers();renderVgEdit();
+});
+[["rVpp","vpp"],["rDpp","dpp"],["rDpb","dpb"]].forEach(([id,k])=>{
+  $(id).addEventListener("input",e=>{S.rate[k]=num(e.target.value);save();renderVgNumbers()});
+});
+function renderVg(){
+  $("rVpp").value=S.rate.vpp;$("rDpp").value=S.rate.dpp;$("rDpb").value=S.rate.dpb;
+  renderVgNumbers();renderVgEdit();
+}
+
+/* ================= PENJUALAN ================= */
+let jPending=null,daysShown=7,histShown=50;
+$("oDate").value=today();
+$("fOut").addEventListener("submit",e=>{
+  e.preventDefault();const amt=num($("oAmt").value);if(!amt){$("oMsg").textContent="Isi jumlah uang yang diambil.";return}
+  S.kas.push({id:uid(),type:"ambil",date:$("oDate").value||today(),price:amt,desc:$("oDesc").value.trim(),at:Date.now()});
+  save();$("oAmt").value="";$("oDesc").value="";$("oMsg").textContent=`Tersimpan: ambil uang ${rp(amt)}.`;renderJual();
+});
+function renderJual(){
+  const sales=S.kas.filter(t=>t.type==="jual"),outs=S.kas.filter(t=>t.type==="ambil");
+  const tin=sales.reduce((s,t)=>s+t.price,0),tout=outs.reduce((s,t)=>s+t.price,0);
+  $("jIn").textContent=rp(tin);$("jOut").textContent=rp(tout);$("jNet").textContent=rp(tin-tout);
+  const td=today();
+  const dates=[...new Set([td,...S.kas.map(t=>t.date)])].sort().reverse();
+  $("days").innerHTML=dates.slice(0,daysShown).map(dt=>{
+    const ds=sales.filter(t=>t.date===dt),dout=outs.filter(t=>t.date===dt);
+    const isT=dt===td,label=new Date(dt+"T00:00").toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long"});
+    return `<div class="card day ${isT?"today":""}">
+      <div class="row"><strong>${isT?"Hari ini · ":""}${label}</strong>${isT?`<span class="live">berjalan sampai 23.59</span>`:""}</div>
+      <div class="grid">
+        <div><div class="k">Akun terjual</div><div class="v num">${ds.length}</div></div>
+        <div><div class="k">Server terjual</div><div class="v num">${f(ds.reduce((s,t)=>s+(t.rack||0),0))}</div></div>
+        <div><div class="k">Total masuk</div><div class="v num ok">${rp(ds.reduce((s,t)=>s+t.price,0))}</div></div>
+        <div><div class="k">Uang diambil</div><div class="v num bad">${dout.length?rp(dout.reduce((s,t)=>s+t.price,0)):"–"}</div></div>
+      </div>
+    </div>`}).join("")+(dates.length>daysShown?`<button class="chip" id="moreDays" style="justify-self:center">Tampilkan hari sebelumnya</button>`:"");
+  const md=$("moreDays");if(md)md.onclick=()=>{daysShown+=7;renderJual()};
+  const list=[...S.kas].sort((a,b)=>b.date.localeCompare(a.date)||(b.at||0)-(a.at||0));
+  $("hist").innerHTML=list.length?list.slice(0,histShown).map(t=>{
+    const out=t.type==="ambil";
+    return `<div class="trx">
+      <div class="top"><span class="what">${out?"Ambil uang":`Jual akun ${t.rack} server`}</span><span class="amt num ${out?"bad":"ok"}">${out?"−":"+"}${rp(t.price)}</span></div>
+      <div class="meta"><span>${ddmm(t.date)}${out?(t.desc?" · "+esc(t.desc):""):" · "+esc(t.email||"")}</span>
+        <button class="del ${jPending===t.id?"confirm":""}" data-jdel="${t.id}">${jPending===t.id?"Yakin hapus?":"Hapus"}</button></div>
+    </div>`}).join("")+(list.length>histShown?`<button class="chip" id="moreHist" style="margin-top:10px">Tampilkan lebih banyak</button>`:"")
+    :`<div class="empty">Belum ada penjualan. Tekan Jual pada akun di tab Stok Akun untuk mencatat yang pertama.</div>`;
+  const mh=$("moreHist");if(mh)mh.onclick=()=>{histShown+=50;renderJual()};
+  document.querySelectorAll("[data-jdel]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.jdel;
+    if(jPending===id){S.kas=S.kas.filter(t=>t.id!==id);jPending=null;save()}else jPending=id;
+    renderJual();
+  });
+}
+
+/* ================= CADANGAN ================= */
+$("bkDown").onclick=async()=>{
+  const name=`cadangan-joo-sturi-market-${today()}.json`;
+  if(window.claude&&window.claude.use){
+    try{const dl=await window.claude.use("downloads");if(dl){await dl.save({filename:name,data:JSON.stringify(S)});return}}
+    catch(e){if(e&&e.code&&e.code!=="unavailable")return}
+  }
+  try{
+    const blob=new Blob([JSON.stringify(S)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`cadangan-joo-sturi-market-${today()}.json`;
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  }catch(e){$("bkConfirm").innerHTML=`<p class="note bad">Gagal mengunduh di perangkat ini.</p>`}
+};
+let pendingRestore=null;
+$("bkFile").addEventListener("change",e=>{
+  const file=e.target.files[0];e.target.value="";if(!file)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let o=null;try{o=JSON.parse(rd.result)}catch(err){}
+    if(!valid(o)){$("bkConfirm").innerHTML=`<p class="note bad">File ini bukan cadangan Joo Sturi Market.</p>`;return}
+    pendingRestore=o;
+    $("bkConfirm").innerHTML=`<div class="banner"><span>Ganti semua data di HP ini dengan cadangan (${o.accs.length} email, ${o.kas.length} transaksi)?</span>
+      <span class="row"><button class="btn sm" id="bkYes" type="button">Pulihkan</button><button class="chip" id="bkNo" type="button">Batal</button></span></div>`;
+    $("bkYes").onclick=()=>{S=pendingRestore;S.prices=S.prices||{};S.vg=S.vg||{};S.rate=Object.assign({vpp:500,dpp:565,dpb:5},S.rate||{});pendingRestore=null;save();$("bkConfirm").innerHTML=`<p class="toast">Cadangan dipulihkan.</p>`;openRack=null;vgSel=null;picked.clear();renderAll()};
+    $("bkNo").onclick=()=>{pendingRestore=null;$("bkConfirm").innerHTML=""};
+  };
+  rd.readAsText(file);
+});
+
+/* ---------- render ---------- */
+function renderAll(){
+  $("sampleBanner").hidden=!S.isSample;
+  if(!S.isSample){clearPending=false}
+  renderStok();renderVg();renderJual();
+}
+let startTab="stok";try{startTab=localStorage.getItem(KEY+".tab")||"stok"}catch(e){}
+if(!TABS[startTab])startTab="stok";
+renderAll();showTab(startTab);
+setInterval(()=>{const t=today();if($("oDate").dataset.day!==t){$("oDate").dataset.day=t;renderJual()}},60000);
+})();
+</script>
+</body>
+</html>
